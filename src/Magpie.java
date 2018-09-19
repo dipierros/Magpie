@@ -35,36 +35,160 @@ public class Magpie
 	public String getResponse(String statement)
 	{
 		String response = "";
-		if (statement.indexOf("no") >= 0) // if it see's the word no, it will say "why so negative?"
+		if (findKeyword(statement, "no") >= 0) // if it see's the word no, it will say "why so negative?"
 		{
 			response = "Why so negative?";
 		}
-		else if (statement.indexOf("mother") >= 0
-				|| statement.indexOf("father") >= 0
-				|| statement.indexOf("sister") >= 0
-				|| statement.indexOf("brother") >= 0)
+		else if (findKeyword(statement,"mother") >= 0
+				|| findKeyword(statement, "father") >= 0
+				|| findKeyword(statement, "dad") >= 0
+				|| findKeyword(statement, "mom") >= 0
+				|| findKeyword(statement, "sister") >= 0
+				|| findKeyword(statement, "brother") >= 0
+				|| findKeyword(statement, "bro") >= 0
+				|| findKeyword(statement, "cousin") >= 0
+				|| findKeyword(statement, "grandma") >= 0)
 		{
 			response = "Tell me more about your family."; // looking for the key words
 		}
-		else if (statement.indexOf("dog") >= 0
-				|| statement.indexOf("cat") >= 0
-				|| statement.indexOf("turtle") >= 0
-				|| statement.indexOf("fish") >= 0)
+		else if (findKeyword(statement, "dog") >= 0
+				|| findKeyword(statement, "cat") >= 0
+				|| findKeyword(statement, "turtle") >= 0
+				|| findKeyword(statement, "fish") >= 0)
 		{
 			response = "Tell me more about your pets.";
 		}
-		else if (statement.indexOf("Mr. Adiletta") >= 0
-				|| statement.indexOf("Mr. A") >= 0)
+		else if (findKeyword(statement, "Mr. Adiletta") >= 0
+				|| findKeyword(statement, "Mr. A") >= 0)
 		{
 					response = "He sounds like a good teacher.";
 		}
+		// Responses which require transformations
+		else if (findKeyword(statement, "I want to", 0) >= 0)
+		{
+			response = transformIWantToStatement(statement);
+		}
+		else if (findKeyword(statement, "I want", 0) >= 0)
+		{
+			response = transformIWantStatement(statement);
+		}
 		else
 		{
-			response = getRandomResponse();
+			// Look for a two word (you <something> me)
+			// pattern
+			int psn = findKeyword(statement, "you", 0);
+			int psn1 = findKeyword(statement, "I", 0);
+			if (psn >= 0
+					&& findKeyword(statement, "me", psn) >= 0)
+			{
+				response = transformYouMeStatement(statement);
+			}
+			else if (psn >= 0 && psn1 >= 0 && psn1 < psn) {
+				response = transformYouIStatement(statement);
+			}
+				else
+
+			{
+				response = getRandomResponse();
+			}
 		}
 		return response;
 	}
+	private String transformIYouStatement(String statement) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	/**
+	 * Take a statement with "I want to <something>." and transform it into 
+	 * "What would it mean to <something>?"
+	 * @param statement the user statement, assumed to contain "I want to"
+	 * @return the transformed statement
+	 */
+	private String transformIWantToStatement(String statement)
+	{
+		//  Remove the final period, if there is one
+		statement = statement.trim();
+		String lastChar = statement.substring(statement
+				.length() - 1);
+		if (lastChar.equals("."))
+		{
+			statement = statement.substring(0, statement
+					.length() - 1);
+		}
+		int psn = findKeyword (statement, "I want to", 0);
+		String restOfStatement = statement.substring(psn + 9).trim();
+		return "What would it mean to " + restOfStatement + "?";
+	}
+	
+
+	/**
+	 * Take a statement with "I want to <something>." and transform it into 
+	 * "What would it mean to <something>?"
+	 * @param statement the user statement, assumed to contain "I want to"
+	 * @return the transformed statement
+	 */
+	private String transformIWantStatement(String statement)
+	{
+		//  Remove the final period, if there is one
+		statement = statement.trim();
+		String lastChar = statement.substring(statement
+				.length() - 1);
+		if (lastChar.equals("."))
+		{
+			statement = statement.substring(0, statement
+					.length() - 1);
+		}
+		int psn = findKeyword (statement, "I want", 0);
+		String restOfStatement = statement.substring(psn + 6).trim();
+		return "Do you really want " + restOfStatement + "?";
+	}
+
+	
+	/**
+	 * Take a statement with "you <something> me" and transform it into 
+	 * "What makes you think that I <something> you?"
+	 * @param statement the user statement, assumed to contain "you" followed by "me"
+	 * @return the transformed statement
+	 */
+	private String transformYouMeStatement(String statement)
+	{
+		//  Remove the final period, if there is one
+		statement = statement.trim();
+		String lastChar = statement.substring(statement
+				.length() - 1);
+		if (lastChar.equals("."))
+		{
+			statement = statement.substring(0, statement
+					.length() - 1);
+		}
+		
+		int psnOfYou = findKeyword (statement, "you", 0);
+		int psnOfMe = findKeyword (statement, "me", psnOfYou + 3);
+		
+		String restOfStatement = statement.substring(psnOfYou + 3, psnOfMe).trim();
+		return "What makes you think that I " + restOfStatement + " you?";
+	}
+	
+	private String transformYouIStatement (String statement)
+	{
+		//  Remove the final period, if there is one
+		statement = statement.trim();
+		String lastChar = statement.substring(statement
+				.length() - 1);
+		if (lastChar.equals("."))
+		{
+			statement = statement.substring(0, statement
+					.length() - 1);
+		}
+		
+		int psnOfI = findKeyword (statement, "I", 0);
+		int psnOfYou = findKeyword (statement, "you", psnOfI +3);
+		
+		String restOfStatement = statement.substring(psnOfI + 2, psnOfYou).trim();
+		return "Why do you " + restOfStatement + " me?";
+	}
+	
 	/**
 	 * Search for one word in phrase. The search is not case
 	 * sensitive. This method will check that the given goal
@@ -82,7 +206,7 @@ public class Magpie
 	 *         statement or -1 if it's not found
 	 */
 	private int findKeyword(String statement, String goal,
-			int startPos)
+			int startPos) //improving the isolation of words
 	{
 		String phrase = statement.trim().toLowerCase(); //declaring a string method, gets rid of spaces at start and end(trim), then makes everything lowercase (toLowercase)
 		goal = goal.toLowerCase(); //updating value of goal to its lowercase version

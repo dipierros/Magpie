@@ -6,7 +6,7 @@
  */
 public class StringExplorer
 {
-	public static void main(String[] args)
+	public static void main(String[] args) //function is another word for method
 	{
 		String sample = "The quick brown fox jumped over the lazy dog.";
 		
@@ -28,8 +28,19 @@ public class StringExplorer
 			System.out.println(sample.compareTo(lowerCase));
 			System.out.println(sample.startsWith(upperCase));
 			System.out.println(sample.lastIndexOf(upperCase, position));
+		
 			
 			int notFoundPsn = sample.indexOf("slow"); //if it returns -1, it is false, or not there
+			
+			//experiment with compareTo --> punctuation, then capitals, then lowercase. going DOWN the list is negative, going UP the list is positive
+			String example1 = "U";
+			String example2 = "p";
+			System.out.println(example1.compareTo(example2)); 
+			
+			//experiment with substring
+			String starter = "start middle end";
+			int psn1 = starter.indexOf("middle");
+			System.out.println(starter.substring(psn1, psn1+6)); //inclusive, starts printing at 10 to the end, substring is an OVERLOADED METHOD
 
 	}
 }
